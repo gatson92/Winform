@@ -1,0 +1,22 @@
+private void chkUnReg_CheckedChanged(object sender, EventArgs e)
+        {
+            bool chked = this.chkUnReg.Checked;
+
+
+            if (dgvDeliveryInfo != null && dgvDeliveryInfo.Rows.Count > 0)
+            {
+                allChecked(false);
+
+                // 활성화된 그리드뷰 넣기
+                CurrencyManager currencyManager1 = (CurrencyManager)BindingContext[dgvDeliveryInfo.DataSource];
+                currencyManager1.SuspendBinding();
+
+                for (int i = 0; i < this.dgvDeliveryInfo.Rows.Count; i++)
+                {
+                    if (string.IsNullOrEmpty(dgvDeliveryInfo.Rows[i].Cells["송장번호"].Value.ToString()) == false)
+                        this.dgvDeliveryInfo.Rows[i].Visible = !chked;
+                }
+
+                currencyManager1.ResumeBinding();
+            }
+        }

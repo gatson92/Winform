@@ -1,0 +1,1 @@
+dataGridView1.Columns.Contains("판매여부")

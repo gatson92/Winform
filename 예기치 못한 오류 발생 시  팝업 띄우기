@@ -1,0 +1,19 @@
+
+Main()에 아래 로직 삽입
+// 처리되지 않은 예외 발생 시
+Application.ThreadException += Application_ThreadException;
+Application.SetUnhandledExceptionMode(UnhandledExceptionMode.Automatic);
+AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+
+
+
+private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        {
+            MessageBox.Show($"오류가 발생하였습니다.\r\n\r\n" +
+                    $"----------------------------------------\r\n" +
+                    $"[Application]\r\n에러 내용\r\n{e.Exception.Message}\r\n\r\n{e.Exception.StackTrace}"
+                    , "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            ErrorManageMent.log(e.Exception.Message, e.Exception.StackTrace);
+        }

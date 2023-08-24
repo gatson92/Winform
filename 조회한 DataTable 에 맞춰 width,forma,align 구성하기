@@ -1,0 +1,149 @@
+        /// <summary>
+        /// 자동 grid 표시 설정 (세부설정은 알아서..)
+        /// </summary>
+        /// <param name="view">표시할 Grid</param>
+        /// <param name="dt">조회된 값</param>
+        /// <param name="excludedColumns">제외할 컬럼명(없으면 생략)</param>
+        public static void autoGridDarw(DataGridView view, DataTable dt, List<string> excludedColumns = null)
+        {
+            if (excludedColumns == null)
+                excludedColumns = new List<string>();
+
+            int minWidth = 80;
+            int MyFeelings = 18;
+
+            int[] width = dt.Columns.Cast<DataColumn>()
+                                    .Where(col => !excludedColumns.Contains(col.ColumnName)) // 제외할 컬럼 삭제처리
+                                    .Select(col => Math.Max(col.ColumnName.Length * MyFeelings, dt.AsEnumerable().Select(row => (row[col]?.ToString().Replace(" ", "") ?? "").Length * 5).Max()))
+                                    .Select(w => Math.Max(w, minWidth))
+                                    .ToArray();
+
+            string[] align = dt.Columns.Cast<DataColumn>().Where(col => !excludedColumns.Contains(col.ColumnName))
+                                       .Select(col => col.DataType == typeof(int) ? "Right" : "Center")
+                                       .ToArray();
+
+            string[] format = dt.Columns.Cast<DataColumn>().Where(col => !excludedColumns.Contains(col.ColumnName))
+                                        .Select(col => col.DataType == typeof(int) ? "##,###" : "")
+                                        .ToArray();
+
+            DataGridViewTableStyle(dt, view, width, format, align);
+        }
+
+
+
+
+public static void DataGridViewTableStyle(DataTable dataTable, DataGridView datagridview, int[] width, string[] format, string[] align)
+        {
+            datagridview.DataSource = null;
+
+            datagridview.AllowUserToAddRows = false;        //Add로우 금지
+            datagridview.AllowUserToDeleteRows = false;     //로우삭제 금지    
+            datagridview.ReadOnly = false;
+
+            DataGridViewCellStyle dcsCol = new DataGridViewCellStyle();   //컬럼헤더 스타일
+            dcsCol.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dcsCol.BackColor = System.Drawing.Color.MidnightBlue;
+            dcsCol.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            dcsCol.ForeColor = System.Drawing.Color.White;
+            dcsCol.SelectionBackColor = System.Drawing.Color.IndianRed;
+            dcsCol.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dcsCol.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+
+            datagridview.ColumnHeadersDefaultCellStyle = dcsCol;  //컬럼헤더스타일 적용
+
+            datagridview.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+
+            DataGridViewCellStyle dsrow = new DataGridViewCellStyle(); //로우헤더스타일
+
+            dsrow.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dsrow.BackColor = System.Drawing.Color.MidnightBlue;
+            dsrow.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            dsrow.ForeColor = System.Drawing.Color.White;
+            dsrow.SelectionBackColor = System.Drawing.Color.IndianRed;
+            dsrow.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dsrow.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            datagridview.RowHeadersDefaultCellStyle = dsrow;
+
+            DataGridViewCellStyle dsCell = new DataGridViewCellStyle();
+            dsCell.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dsCell.BackColor = System.Drawing.SystemColors.Window;
+            dsCell.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            dsCell.ForeColor = System.Drawing.SystemColors.ControlText;
+            dsCell.SelectionBackColor = System.Drawing.Color.IndianRed;
+            dsCell.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dsCell.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            datagridview.DefaultCellStyle = dsCell;
+
+            DataGridViewTextBoxColumn[] bc = new DataGridViewTextBoxColumn[dataTable.Columns.Count]; //컬럼추가
+
+            DataGridViewCellStyle middleLeft = new DataGridViewCellStyle();
+            DataGridViewCellStyle middleCenter = new DataGridViewCellStyle();
+            DataGridViewCellStyle middleRight = new DataGridViewCellStyle();
+            DataGridViewCellStyle money = new DataGridViewCellStyle();
+            DataGridViewCellStyle money2 = new DataGridViewCellStyle();
+
+            middleLeft.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            middleCenter.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            middleRight.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            money.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            money.Format = "N0";
+            money.NullValue = null;
+
+            money2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            money2.Format = "N2";
+            money2.NullValue = null;
+
+            for (int cnt = 0; cnt < dataTable.Columns.Count; cnt++)
+            {
+                bc[cnt] = new DataGridViewTextBoxColumn();
+
+                bc[cnt].HeaderText = dataTable.Columns[cnt].ColumnName; //헤더텍스트
+                bc[cnt].DataPropertyName = dataTable.Columns[cnt].ColumnName; //매핑네임
+                bc[cnt].Name = dataTable.Columns[cnt].ColumnName; //column네임
+
+                if (width[cnt] < 1)
+                {
+                    bc[cnt].Visible = false;
+                }
+                else if (width[cnt] == 77 || width[cnt] == 55 || width[cnt] == 44 || width[cnt] == 33 || width[cnt] == 66 || width[cnt] == 88 || width[cnt] == 99 || width[cnt] == 166)
+                {
+                    bc[cnt].Width = width[cnt];
+                    bc[cnt].ReadOnly = false;
+                }
+                else
+                {
+                    bc[cnt].Width = width[cnt];
+                    bc[cnt].ReadOnly = true;
+                }
+                // 컬럼정렬
+                switch (align[cnt])
+                {
+                    case "Center":
+                        bc[cnt].DefaultCellStyle = middleCenter;
+                        break;
+
+                    case "Right":
+                        bc[cnt].DefaultCellStyle = middleRight;
+                        break;
+
+                    case "Left":
+                        bc[cnt].DefaultCellStyle = middleLeft;
+                        break;
+                }
+
+                // 컬럼 포맷 설정
+                if (format[cnt].ToString() == "money")
+                {
+                    bc[cnt].DefaultCellStyle = money;
+                }
+                else if (format[cnt].ToString() == "money2")
+                {
+                    bc[cnt].DefaultCellStyle = money2;
+                }
+
+                datagridview.Columns.Add(bc[cnt]);
+
+            }
+
+            datagridview.DataSource = dataTable;
+        }
